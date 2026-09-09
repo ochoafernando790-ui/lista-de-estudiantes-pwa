@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1e3a5f" />
+    <title>Lista de Estudiantes</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Estudiantes" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <div class="marco">
+      <!-- =============================================================
+           PANTALLA 1: LISTA CON BÚSQUEDA, FILTROS Y ORDENAMIENTO
+      ============================================================== -->
+      <section id="pantallaLista" class="pantalla activa">
+        <header class="encabezado">
+          <div class="fila-meta">
+            <span class="badge"><img src="icons/icon.svg" alt="" class="badge-icono" />Estudiantes</span>
+            <p id="estadoPWA" class="estado-pwa">Preparando la aplicación…</p>
+          </div>
+          <div class="fila-titulo">
+            <h1 id="tituloLista">Estudiantes (0/0)</h1>
+            <button id="btnBorrarTodos" type="button" class="icono-boton peligro" aria-label="Borrar todos" hidden>
+              🗑️
+            </button>
+          </div>
+        </header>
+
+        <div class="contenido">
+          <div class="campo-buscar">
+            <input id="buscarNombre" type="search" placeholder="Buscar por nombre..." autocomplete="off" />
+            <button id="btnLimpiarBusqueda" type="button" class="boton-limpiar" hidden aria-label="Limpiar">✕</button>
+          </div>
+
+          <div class="fila-filtros">
+            <select id="filtroCarrera" aria-label="Filtrar por carrera"></select>
+            <button id="btnOrden" type="button" class="boton-orden">
+              <span aria-hidden="true">⇕</span>
+              <span id="textoOrden">A-Z</span>
+            </button>
+          </div>
+
+          <div id="listaVacia" class="lista-vacia" hidden>No hay estudiantes registrados.</div>
+
+          <ul id="listaEstudiantes" class="lista-estudiantes"></ul>
+        </div>
+
+        <button id="btnAgregar" type="button" class="fab" aria-label="Agregar estudiante">+</button>
+      </section>
+
+      <!-- =============================================================
+           PANTALLA 2: DETALLE DEL ESTUDIANTE
+      ============================================================== -->
+      <section id="pantallaDetalle" class="pantalla">
+        <header class="encabezado-secundario">
+          <button id="btnVolverDetalle" type="button" class="icono-boton" aria-label="Volver">←</button>
+          <h2>Detalle del Estudiante</h2>
+        </header>
+
+        <div class="contenido contenido-detalle">
+          <div class="tarjeta-detalle">
+            <div id="avatarDetalle" class="avatar avatar-grande"></div>
+            <h2 id="detalleNombre"></h2>
+            <p id="detalleCarrera" class="linea-detalle"></p>
+            <p id="detalleEdad" class="linea-detalle"></p>
+            <p id="detalleSexo" class="linea-detalle"></p>
+            <p id="detalleTelefono" class="linea-detalle"></p>
+            <p id="detalleCorreo" class="linea-detalle"></p>
+
+            <div class="fila-botones-detalle">
+              <button id="btnEditar" type="button" class="boton boton-primario">✏️ Editar</button>
+              <button id="btnEliminar" type="button" class="boton boton-peligro">🗑️ Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           PANTALLA 3: FORMULARIO DE REGISTRO / EDICIÓN
+      ============================================================== -->
+      <section id="pantallaFormulario" class="pantalla">
+        <header class="encabezado-secundario">
+          <button id="btnVolverFormulario" type="button" class="icono-boton" aria-label="Volver">←</button>
+          <h2 id="tituloFormulario">Nuevo Estudiante</h2>
+        </header>
+
+        <div class="contenido">
+          <form id="formularioEstudiante" novalidate>
+            <div class="foto-selector">
+              <div id="avatarFormulario" class="avatar avatar-formulario"></div>
+              <div class="fila-botones-foto">
+                <button id="btnGaleria" type="button" class="boton boton-borde">Galería</button>
+                <button id="btnCamara" type="button" class="boton boton-borde">Cámara</button>
+              </div>
+              <input id="inputGaleria" type="file" accept="image/*" hidden />
+              <input id="inputCamara" type="file" accept="image/*" capture="environment" hidden />
+            </div>
+
+            <label class="etiqueta-campo">
+              Nombre completo
+              <input id="campoNombre" type="text" />
+              <span class="error-campo" id="errorNombre" hidden>El nombre no puede estar vacío</span>
+            </label>
+
+            <label class="etiqueta-campo">
+              Edad
+              <input id="campoEdad" type="number" inputmode="numeric" min="1" max="120" />
+              <span class="error-campo" id="errorEdad" hidden>Ingrese una edad válida (1 a 120)</span>
+            </label>
+
+            <fieldset class="grupo-sexo">
+              <legend>Sexo</legend>
+              <label><input type="radio" name="sexo" value="Masculino" /> Masculino</label>
+              <label><input type="radio" name="sexo" value="Femenino" /> Femenino</label>
+            </fieldset>
+
+            <label class="etiqueta-campo">
+              Carrera
+              <select id="campoCarrera"></select>
+            </label>
+
+            <label class="etiqueta-campo">
+              Teléfono
+              <input id="campoTelefono" type="tel" inputmode="tel" />
+              <span class="error-campo" id="errorTelefono" hidden>Ingrese un teléfono de al menos 8 dígitos</span>
+            </label>
+
+            <label class="etiqueta-campo">
+              Correo Electrónico
+              <input id="campoCorreo" type="email" inputmode="email" />
+              <span class="error-campo" id="errorCorreo" hidden>Ingrese un correo electrónico válido</span>
+            </label>
+
+            <button type="submit" class="boton boton-primario boton-ancho">Guardar Estudiante</button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div id="overlayModal" class="overlay-modal" hidden>
+      <div class="modal" role="alertdialog" aria-modal="true">
+        <h3 id="modalTitulo"></h3>
+        <p id="modalMensaje"></p>
+        <div class="fila-botones-modal">
+          <button id="modalCancelar" type="button" class="boton boton-texto">Cancelar</button>
+          <button id="modalConfirmar" type="button" class="boton boton-peligro">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bannerEstado" class="banner-estado" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

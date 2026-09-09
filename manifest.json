@@ -1,0 +1,26 @@
+{
+  "name": "Lista de Estudiantes",
+  "short_name": "Estudiantes",
+  "description": "Gestión de estudiantes con búsqueda, filtros por carrera, orden alfabético y fichas de perfil",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f6",
+  "theme_color": "#1e3a5f",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
