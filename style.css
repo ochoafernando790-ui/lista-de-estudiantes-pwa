@@ -296,6 +296,36 @@ body {
   color: var(--apagado);
 }
 
+/* ---------- Pie de página ---------- */
+.pie {
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--borde);
+  text-align: center;
+  color: var(--apagado);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.pie-estado {
+  font-weight: 500;
+}
+
+.pie-estado.cargando {
+  color: var(--apagado);
+}
+
+.pie-estado.exito {
+  color: var(--acento);
+}
+
+.pie-estado.error {
+  color: var(--peligro);
+}
+
+.pie-estado.no-soportado {
+  color: var(--dorado);
+}
+
 /* ---------- FAB ---------- */
 .fab {
   position: absolute;

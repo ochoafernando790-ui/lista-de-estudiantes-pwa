@@ -102,6 +102,8 @@ const modalConfirmar = document.getElementById("modalConfirmar");
 
 const textoEstado = document.getElementById("estadoPWA");
 const bannerEstado = document.getElementById("bannerEstado");
+const pieDerechos = document.getElementById("pieDerechos");
+const pieEstado = document.getElementById("pieEstado");
 
 // ---------- Navegación ----------
 function mostrarPantalla(nombre) {
@@ -502,6 +504,9 @@ function mostrarBanner(mensaje, tipo, autoOcultarMs) {
       bannerEstado.classList.remove("visible");
     }, autoOcultarMs);
   }
+
+  pieEstado.textContent = mensaje;
+  pieEstado.className = "pie-estado " + tipo;
 }
 
 window.addEventListener("online", function () {
@@ -516,6 +521,7 @@ poblarFiltroCarrera();
 poblarSelectCarrera();
 renderizarLista();
 textoEstado.textContent = estadoPWA();
+pieDerechos.textContent = "© " + new Date().getFullYear() + " Todos los derechos reservados";
 
 mostrarBanner("Cargando aplicación…", "cargando");
 
