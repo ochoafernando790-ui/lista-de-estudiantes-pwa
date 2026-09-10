@@ -1,4 +1,4 @@
-const CLAVE_ALMACENAMIENTO = "listaEstudiantes";
+const API_URL = "api.php";
 
 const opcionesSexo = ["Masculino", "Femenino"];
 const opcionesCarrera = [
@@ -9,20 +9,7 @@ const opcionesCarrera = [
   "Diseño Gráfico",
 ];
 
-const estudiantesPorDefecto = [
-  { id: "1", nombre: "Carlos Mendoza", edad: "20", sexo: "Masculino", carrera: "Ingeniería en Sistemas", telefono: "78901234", correo: "carlos.mendoza@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400" },
-  { id: "2", nombre: "Ana Lucía Torres", edad: "22", sexo: "Femenino", carrera: "Licenciatura en Computación", telefono: "71234567", correo: "ana.torres@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400" },
-  { id: "3", nombre: "Roberto Gómez", edad: "21", sexo: "Masculino", carrera: "Ingeniería Industrial", telefono: "75678901", correo: "roberto.gomez@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" },
-  { id: "4", nombre: "Sofía Hernández", edad: "19", sexo: "Femenino", carrera: "Diseño Gráfico", telefono: "73456789", correo: "sofia.hernandez@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400" },
-  { id: "5", nombre: "Diego Ramos", edad: "23", sexo: "Masculino", carrera: "Licenciatura en Administración", telefono: "79012345", correo: "diego.ramos@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400" },
-  { id: "6", nombre: "Valeria Castro", edad: "20", sexo: "Femenino", carrera: "Ingeniería en Sistemas", telefono: "72345678", correo: "valeria.castro@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400" },
-  { id: "7", nombre: "Fernando López", edad: "24", sexo: "Masculino", carrera: "Ingeniería Industrial", telefono: "76789012", correo: "fernando.lopez@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400" },
-  { id: "8", nombre: "Gabriela Morales", edad: "21", sexo: "Femenino", carrera: "Diseño Gráfico", telefono: "74567890", correo: "gabriela.morales@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400" },
-  { id: "9", nombre: "Jorge Martínez", edad: "22", sexo: "Masculino", carrera: "Licenciatura en Computación", telefono: "70123456", correo: "jorge.martinez@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400" },
-  { id: "10", nombre: "Mariana Aguilar", edad: "20", sexo: "Femenino", carrera: "Licenciatura en Administración", telefono: "77890123", correo: "mariana.aguilar@estudiante.edu.sv", foto: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400" },
-];
-
-let estudiantes = cargarEstudiantes();
+let estudiantes = [];
 let textoBusqueda = "";
 let carreraSeleccionada = "Todas las carreras";
 let ordenAscendente = true;
@@ -32,19 +19,60 @@ let idFormularioActual = null;
 let fotoFormulario = null;
 let accionModalConfirmada = null;
 
-function cargarEstudiantes() {
-  try {
-    const guardado = localStorage.getItem(CLAVE_ALMACENAMIENTO);
-    if (guardado === null) return estudiantesPorDefecto.slice();
-    const datos = JSON.parse(guardado);
-    return Array.isArray(datos) ? datos : estudiantesPorDefecto.slice();
-  } catch (e) {
-    return estudiantesPorDefecto.slice();
-  }
+// ---------- Acceso a la API (PHP + MySQL) ----------
+async function apiListar() {
+  const respuesta = await fetch(API_URL + "?accion=listar");
+  if (!respuesta.ok) throw new Error("No se pudo obtener la lista de estudiantes");
+  return respuesta.json();
 }
 
-function guardarEstudiantes() {
-  localStorage.setItem(CLAVE_ALMACENAMIENTO, JSON.stringify(estudiantes));
+async function apiCrear(datos) {
+  const respuesta = await fetch(API_URL + "?accion=crear", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) throw new Error(cuerpo.error || "No se pudo crear el estudiante");
+  return cuerpo;
+}
+
+async function apiActualizar(id, datos) {
+  const respuesta = await fetch(API_URL + "?accion=actualizar&id=" + encodeURIComponent(id), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) throw new Error(cuerpo.error || "No se pudo actualizar el estudiante");
+  return cuerpo;
+}
+
+async function apiEliminar(id) {
+  const respuesta = await fetch(API_URL + "?accion=eliminar&id=" + encodeURIComponent(id), { method: "POST" });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) throw new Error(cuerpo.error || "No se pudo eliminar el estudiante");
+  return cuerpo;
+}
+
+async function apiEliminarTodos() {
+  const respuesta = await fetch(API_URL + "?accion=eliminar_todos", { method: "POST" });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) throw new Error(cuerpo.error || "No se pudieron eliminar los estudiantes");
+  return cuerpo;
+}
+
+async function cargarDesdeServidor() {
+  try {
+    estudiantes = await apiListar();
+    renderizarLista();
+    return true;
+  } catch (e) {
+    estudiantes = [];
+    renderizarLista();
+    mostrarBanner("No se pudo conectar con la base de datos", "error");
+    return false;
+  }
 }
 
 // ---------- Elementos ----------
@@ -344,7 +372,7 @@ function sexoSeleccionado() {
   return radio ? radio.value : opcionesSexo[0];
 }
 
-formularioEstudiante.addEventListener("submit", function (evento) {
+formularioEstudiante.addEventListener("submit", async function (evento) {
   evento.preventDefault();
 
   const nombre = campoNombre.value.trim();
@@ -369,8 +397,7 @@ formularioEstudiante.addEventListener("submit", function (evento) {
 
   if (!(esNombreValido && esEdadValida && esTelefonoValido && esCorreoValido)) return;
 
-  const estudianteGuardado = {
-    id: modoFormulario === "editar" && idFormularioActual ? idFormularioActual : String(Date.now()) + Math.random().toString(16).slice(2),
+  const datos = {
     nombre: nombre,
     edad: edadTexto,
     sexo: sexoSeleccionado(),
@@ -380,17 +407,22 @@ formularioEstudiante.addEventListener("submit", function (evento) {
     foto: fotoFormulario,
   };
 
-  if (modoFormulario === "editar") {
-    const indice = estudiantes.findIndex(function (e) {
-      return e.id === estudianteGuardado.id;
-    });
-    if (indice !== -1) estudiantes[indice] = estudianteGuardado;
-  } else {
-    estudiantes.push(estudianteGuardado);
-  }
+  const botonGuardar = formularioEstudiante.querySelector('button[type="submit"]');
+  botonGuardar.disabled = true;
 
-  guardarEstudiantes();
-  irALista();
+  try {
+    if (modoFormulario === "editar" && idFormularioActual) {
+      await apiActualizar(idFormularioActual, datos);
+    } else {
+      await apiCrear(datos);
+    }
+    await cargarDesdeServidor();
+    irALista();
+  } catch (e) {
+    mostrarBanner(e.message, "error");
+  } finally {
+    botonGuardar.disabled = false;
+  }
 });
 
 // ---------- Modal de confirmación ----------
@@ -445,10 +477,13 @@ btnBorrarTodos.addEventListener("click", function () {
   abrirModal(
     "Eliminar todos los estudiantes",
     "¿Está seguro de que desea borrar absolutamente todos los registros? Esta acción no se puede deshacer.",
-    function () {
-      estudiantes = [];
-      guardarEstudiantes();
-      renderizarLista();
+    async function () {
+      try {
+        await apiEliminarTodos();
+        await cargarDesdeServidor();
+      } catch (e) {
+        mostrarBanner(e.message, "error");
+      }
     }
   );
 });
@@ -469,12 +504,14 @@ btnEliminar.addEventListener("click", function () {
     return e.id === idDetalleActual;
   });
   if (!estudiante) return;
-  abrirModal("Confirmar Eliminación", "¿Está seguro de que desea eliminar a " + estudiante.nombre + "?", function () {
-    estudiantes = estudiantes.filter(function (e) {
-      return e.id !== idDetalleActual;
-    });
-    guardarEstudiantes();
-    irALista();
+  abrirModal("Confirmar Eliminación", "¿Está seguro de que desea eliminar a " + estudiante.nombre + "?", async function () {
+    try {
+      await apiEliminar(idDetalleActual);
+      await cargarDesdeServidor();
+      irALista();
+    } catch (e) {
+      mostrarBanner(e.message, "error");
+    }
   });
 });
 
@@ -517,26 +554,27 @@ window.addEventListener("offline", function () {
 });
 
 // ---------- Inicio ----------
-poblarFiltroCarrera();
-poblarSelectCarrera();
-renderizarLista();
-textoEstado.textContent = estadoPWA();
-pieDerechos.textContent = "© " + new Date().getFullYear() + " Todos los derechos reservados";
+async function iniciarApp() {
+  poblarFiltroCarrera();
+  poblarSelectCarrera();
+  textoEstado.textContent = estadoPWA();
+  pieDerechos.textContent = "© " + new Date().getFullYear() + " Todos los derechos reservados";
 
-mostrarBanner("Cargando aplicación…", "cargando");
+  mostrarBanner("Conectando con la base de datos…", "cargando");
+  const datosOk = await cargarDesdeServidor();
 
-if (!("serviceWorker" in navigator)) {
-  mostrarBanner("Tu navegador no es compatible con esta aplicación", "no-soportado");
-} else {
-  window.addEventListener("load", function () {
-    navigator.serviceWorker
-      .register("service-worker.js")
-      .then(function () {
-        mostrarBanner("Aplicación cargada correctamente", "exito", 3000);
-      })
-      .catch(function () {
-        textoEstado.textContent = "Sin soporte para modo offline";
-        mostrarBanner("Ocurrió un error al cargar la aplicación", "error");
-      });
-  });
+  if (!("serviceWorker" in navigator)) {
+    if (datosOk) mostrarBanner("Tu navegador no es compatible con el modo offline", "no-soportado");
+    return;
+  }
+
+  try {
+    await navigator.serviceWorker.register("service-worker.js");
+    if (datosOk) mostrarBanner("Aplicación y datos cargados correctamente", "exito", 3000);
+  } catch (e) {
+    textoEstado.textContent = "Sin soporte para modo offline";
+    if (datosOk) mostrarBanner("Datos cargados, pero sin soporte para modo offline", "error");
+  }
 }
+
+iniciarApp();
