@@ -103,6 +103,51 @@ body {
   font-weight: 600;
 }
 
+.acciones-encabezado {
+  display: flex;
+  gap: 4px;
+}
+
+/* ---------- Login ---------- */
+.contenido-login {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+}
+
+.tarjeta-login {
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+}
+
+.tarjeta-login .badge {
+  margin-bottom: 18px;
+}
+
+.tarjeta-login h1 {
+  font-family: "Poppins", Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subtitulo-login {
+  color: var(--apagado);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+#formularioLogin {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
 .encabezado-secundario {
   display: flex;
   align-items: center;

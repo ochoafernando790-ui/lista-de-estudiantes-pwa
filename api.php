@@ -2,14 +2,18 @@
 // API REST sencilla para la tabla "estudiantes" (una sola tabla).
 // Acciones vía ?accion=... : listar | crear | actualizar | eliminar | eliminar_todos
 
+session_start();
 require_once __DIR__ . '/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
+}
+
+if (empty($_SESSION['autenticado'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Debes iniciar sesión']);
     exit;
 }
 

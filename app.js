@@ -1,4 +1,5 @@
 const API_URL = "api.php";
+const LOGIN_URL = "login.php";
 
 const opcionesSexo = ["Masculino", "Femenino"];
 const opcionesCarrera = [
@@ -62,6 +63,29 @@ async function apiEliminarTodos() {
   return cuerpo;
 }
 
+async function apiEstadoLogin() {
+  const respuesta = await fetch(LOGIN_URL + "?accion=estado");
+  if (!respuesta.ok) throw new Error("No se pudo consultar la sesión");
+  const cuerpo = await respuesta.json();
+  return Boolean(cuerpo.autenticado);
+}
+
+async function apiLogin(password) {
+  const respuesta = await fetch(LOGIN_URL + "?accion=entrar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: password }),
+  });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) throw new Error(cuerpo.error || "Contraseña incorrecta");
+  return cuerpo;
+}
+
+async function apiLogout() {
+  const respuesta = await fetch(LOGIN_URL + "?accion=salir", { method: "POST" });
+  return respuesta.json();
+}
+
 async function cargarDesdeServidor() {
   try {
     estudiantes = await apiListar();
@@ -77,10 +101,16 @@ async function cargarDesdeServidor() {
 
 // ---------- Elementos ----------
 const pantallas = {
+  login: document.getElementById("pantallaLogin"),
   lista: document.getElementById("pantallaLista"),
   detalle: document.getElementById("pantallaDetalle"),
   formulario: document.getElementById("pantallaFormulario"),
 };
+
+const formularioLogin = document.getElementById("formularioLogin");
+const campoPasswordLogin = document.getElementById("campoPasswordLogin");
+const errorLogin = document.getElementById("errorLogin");
+const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 
 const tituloLista = document.getElementById("tituloLista");
 const btnBorrarTodos = document.getElementById("btnBorrarTodos");
@@ -518,6 +548,35 @@ btnEliminar.addEventListener("click", function () {
 // ---------- Eventos: pantalla formulario ----------
 btnVolverFormulario.addEventListener("click", irALista);
 
+// ---------- Eventos: login ----------
+formularioLogin.addEventListener("submit", async function (evento) {
+  evento.preventDefault();
+  errorLogin.hidden = true;
+  campoPasswordLogin.classList.remove("campo-error");
+
+  const boton = formularioLogin.querySelector('button[type="submit"]');
+  boton.disabled = true;
+
+  try {
+    await apiLogin(campoPasswordLogin.value);
+    campoPasswordLogin.value = "";
+    mostrarPantalla("lista");
+    await cargarAppTrasLogin();
+  } catch (e) {
+    errorLogin.textContent = e.message;
+    errorLogin.hidden = false;
+    campoPasswordLogin.classList.add("campo-error");
+  } finally {
+    boton.disabled = false;
+  }
+});
+
+btnCerrarSesion.addEventListener("click", async function () {
+  await apiLogout();
+  estudiantes = [];
+  mostrarPantalla("login");
+});
+
 // ---------- Estado PWA ----------
 function estadoPWA() {
   const enLinea = navigator.onLine;
@@ -554,12 +613,7 @@ window.addEventListener("offline", function () {
 });
 
 // ---------- Inicio ----------
-async function iniciarApp() {
-  poblarFiltroCarrera();
-  poblarSelectCarrera();
-  textoEstado.textContent = estadoPWA();
-  pieDerechos.textContent = "© " + new Date().getFullYear() + " Todos los derechos reservados";
-
+async function cargarAppTrasLogin() {
   mostrarBanner("Conectando con la base de datos…", "cargando");
   const datosOk = await cargarDesdeServidor();
 
@@ -574,6 +628,28 @@ async function iniciarApp() {
   } catch (e) {
     textoEstado.textContent = "Sin soporte para modo offline";
     if (datosOk) mostrarBanner("Datos cargados, pero sin soporte para modo offline", "error");
+  }
+}
+
+async function iniciarApp() {
+  poblarFiltroCarrera();
+  poblarSelectCarrera();
+  textoEstado.textContent = estadoPWA();
+  pieDerechos.textContent = "© " + new Date().getFullYear() + " Todos los derechos reservados";
+
+  let autenticado = false;
+  try {
+    autenticado = await apiEstadoLogin();
+  } catch (e) {
+    autenticado = false;
+  }
+
+  if (autenticado) {
+    mostrarPantalla("lista");
+    await cargarAppTrasLogin();
+  } else {
+    mostrarPantalla("login");
+    campoPasswordLogin.focus();
   }
 }
 

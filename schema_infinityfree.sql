@@ -1,11 +1,7 @@
--- Base de datos para "Lista de Estudiantes" (PHP + MySQL)
--- Una sola tabla, tal como pide el ejercicio.
--- Para uso LOCAL (AppServ/XAMPP), donde el usuario root sí puede crear bases nuevas.
--- Para hosting compartido (InfinityFree, etc.) usa schema_infinityfree.sql en su lugar,
--- porque ahí no tienes permiso para CREATE DATABASE.
-
-CREATE DATABASE IF NOT EXISTS lista_estudiantes CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE lista_estudiantes;
+-- Version para hosting compartido (InfinityFree y similares).
+-- NO incluye CREATE DATABASE / USE: en hosting compartido no tienes permiso
+-- para crear bases nuevas. Antes de importar, selecciona en phpMyAdmin la
+-- base de datos que ya creaste desde el panel (MySQL Databases).
 
 DROP TABLE IF EXISTS estudiantes;
 

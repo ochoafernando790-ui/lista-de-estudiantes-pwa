@@ -22,9 +22,31 @@
   <body>
     <div class="marco">
       <!-- =============================================================
+           PANTALLA 0: LOGIN
+      ============================================================== -->
+      <section id="pantallaLogin" class="pantalla activa">
+        <div class="contenido-login">
+          <div class="tarjeta-login">
+            <span class="badge"><img src="icons/icon.svg" alt="" class="badge-icono" />Estudiantes</span>
+            <h1>Iniciar sesión</h1>
+            <p class="subtitulo-login">Ingresa la contraseña para administrar la lista de estudiantes.</p>
+
+            <form id="formularioLogin" novalidate>
+              <label class="etiqueta-campo">
+                Contraseña
+                <input id="campoPasswordLogin" type="password" autocomplete="current-password" />
+                <span class="error-campo" id="errorLogin" hidden></span>
+              </label>
+              <button type="submit" class="boton boton-primario boton-ancho">Entrar</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
            PANTALLA 1: LISTA CON BÚSQUEDA, FILTROS Y ORDENAMIENTO
       ============================================================== -->
-      <section id="pantallaLista" class="pantalla activa">
+      <section id="pantallaLista" class="pantalla">
         <header class="encabezado">
           <div class="fila-meta">
             <span class="badge"><img src="icons/icon.svg" alt="" class="badge-icono" />Estudiantes</span>
@@ -32,9 +54,14 @@
           </div>
           <div class="fila-titulo">
             <h1 id="tituloLista">Estudiantes (0/0)</h1>
-            <button id="btnBorrarTodos" type="button" class="icono-boton peligro" aria-label="Borrar todos" hidden>
-              🗑️
-            </button>
+            <div class="acciones-encabezado">
+              <button id="btnBorrarTodos" type="button" class="icono-boton peligro" aria-label="Borrar todos" hidden>
+                🗑️
+              </button>
+              <button id="btnCerrarSesion" type="button" class="icono-boton" aria-label="Cerrar sesión">
+                🔒
+              </button>
+            </div>
           </div>
         </header>
 
